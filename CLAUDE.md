@@ -1,5 +1,38 @@
 # Notes for Claude (maintainers' sessions)
 
+## Cloud mode (no panel)
+
+In a Claude Code cloud session (Linux, no KiCad window, no panel) you do the panel's work yourself. The user talks to you directly, usually from their phone.
+
+**Setup.** `cloud/session-start.sh` (SessionStart hook) runs `cloud/setup.sh`. That script installs KiCad 10 from the official PPA and the pinned KiCad MCP server with `patches/kicad-mcp.patch`, plus Java 25 + Freerouting 2.4.1 and the library clone at `~/PowerLabKiCadLibraries`. It also sets KiCad's `METUPOWERLAB_*` paths. It is safe to rerun, and `bash cloud/setup.sh --check` shows the state. If setup failed, read `~/.local/share/PowerLabKiCadAssistant/setup.log`.
+
+**Tools.** `.mcp.json` registers the same `kicad` MCP server the panel uses, so use the `mcp__kicad__*` tools. If they're missing from this session (setup finished after the session started, or the server failed to connect), call the same tools from Bash:
+
+```bash
+python3 cloud/kicad_tool.py list [word]            # find tools
+python3 cloud/kicad_tool.py describe <tool>        # arguments
+python3 cloud/kicad_tool.py call open_project '{"filename":"<path>.kicad_pro"}' run_drc '{}'
+```
+
+Each `kicad_tool.py` run is a fresh server, so open the project in the same run as the calls that need it. `kicad-cli` is on PATH; use it freely, e.g. `kicad-cli pcb render` (3D) and `kicad-cli sch erc`.
+
+**Where things go.**
+- Clone the user's projects into `projects/`. Keep renders in `views/<project>/` with numbered names. Both folders are in this checkout and git-ignored, because the app can only open files under it.
+- That `views/` folder is the "views folder" the `powerlab-visual-review` skill names.
+- There is no panel showing images you Read. Send views, reports and outputs to the user with SendUserFile.
+- Commit design changes in the user's project repo, not in this one, and only when they ask.
+
+**Rules the panel normally gives you (PANEL_NOTE, library_context).**
+- Change designs only through the kicad MCP tools, never by hand-editing `.kicad_pcb` / `.kicad_sch`. There is no live KiCad here (`_realtime: false`): tools edit the files, so save the board (`save_board`) before rendering or running kicad-cli on it.
+- Never delete files or folders unless the user names them. If a request is ambiguous, ask.
+- For any schematic or PCB design, placement, routing, design-rule or review work, load `powerlab-pcb-design-rules` first and follow it. For placement or routing, also load `powerlab-visual-review` and render after every step.
+- Library parts: before creating or changing a symbol, footprint or 3D model, read `~/PowerLabKiCadLibraries/HowToCreateNewDesign/DesignRules.md` and follow it exactly. Put parts in that clone (`symbols/<Library>.kicad_sym`, `footprints/<Library>.pretty/<Footprint>.kicad_mod`, `3dmodels/powerlab.3dshapes/<Category>/<Subcategory>/`, referenced as `${METUPOWERLAB_3D}/...`). Run its `tools/check_library.py` on the changed files. Sharing goes through a pull request to odtu/PowerLabKiCadLibraries from the user's own account. Prepare the files and tell them; don't open it unless they ask and the repo is in this session's scope.
+- `powerlab-autoroute` says to run `install.ps1 -Update` if `check_freerouting` fails. Here, rerun `bash cloud/setup.sh` instead.
+- KiCad's 3D model package isn't installed (several GB), so stock KiCad parts render without bodies in 3D. Lab parts use the library clone's models.
+- Say what the user should double-check against the datasheet for anything that ends up in hardware.
+
+**Not available here:** live board edits through KiCad's API server, the schematic editor's selection, and anything else that needs the KiCad window. Problem reports to odtu go through the rules under Handling issues.
+
 ## Branches
 
 - **`main` is stable.** Users' clones follow it, and the panel's Update button pulls it. Within about 10 minutes of `VERSION` changing on `main`, every panel shows the update bar. So `main` changes only through a release (below), never through a fix or feature PR.

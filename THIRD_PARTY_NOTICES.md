@@ -29,6 +29,8 @@ The installer downloads these from their official sources into `%LOCALAPPDATA%\P
 | [Freerouting 2.4.1](https://github.com/freerouting/freerouting) | autorouting | GPL-3.0. Official release jar, run as a separate program; source on GitHub. |
 | [Eclipse Temurin 25.0.4.1 JRE](https://adoptium.net/) | runs Freerouting | GPL-2.0 WITH Classpath-exception-2.0. Its notices are in the installed `legal/` folder. |
 
+**Cloud mode** (`cloud/setup.sh`, Linux) installs the same pinned versions from the same sources: the Linux builds of Temurin and Freerouting, with the MCP server's Python packages installed into the system Python. It also installs [KiCad 10](https://www.kicad.org/) (GPL-3.0) and its symbol and footprint libraries (CC-BY-SA-4.0 with an exception for designs that use them) from the KiCad team's official Ubuntu PPA.
+
 ## Installed by you
 
 | Software | License |

@@ -1,5 +1,13 @@
 # PowerLab KiCad Assistant
 
+> **Note: cloud mode without the panel (this branch).** This version also runs in a Claude Code cloud session (claude.ai/code, Linux), without KiCad's window or the panel. Claude itself does what the panel would. When a session starts, `cloud/setup.sh` installs:
+> - KiCad 10
+> - the KiCad MCP server with the lab's patch
+> - Java 25 and Freerouting 2.4.1
+> - the METU Power Lab library
+>
+> `.mcp.json` gives Claude the same `kicad` tools, and the lab's skills load from `.claude/skills/`. Clone your projects into `projects/`; Claude sends the renders and reports to you. Live editing in an open KiCad window isn't available. Details: [CLAUDE.md → Cloud mode](CLAUDE.md#cloud-mode-no-panel). The Windows panel below is unchanged.
+
 A side panel for **KiCad 10** that lets you ask Claude to do things in your design: create symbol and footprint libraries to the METU Power Lab standard, run ERC/DRC and explain the results, render 3D views, export fabrication files, and edit schematics and boards.
 
 It runs [Claude Code](https://docs.claude.com/claude-code) on your computer with your own Claude account, and gives it KiCad tools through [KiCAD-MCP-Server](https://github.com/mixelpixx/KiCAD-MCP-Server).

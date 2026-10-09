@@ -6,3 +6,6 @@ __pycache__/
 *.kicad_prl
 # Local test projects
 tests/TestPCB/
+# Cloud mode: user projects and board renders (see CLAUDE.md > Cloud mode)
+projects/
+views/

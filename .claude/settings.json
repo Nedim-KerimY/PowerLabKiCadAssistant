@@ -1,0 +1,24 @@
+{
+  "enableAllProjectMcpServers": true,
+  "permissions": {
+    "allow": [
+      "mcp__kicad",
+      "Bash(kicad-cli:*)",
+      "Bash(python3 cloud/kicad_tool.py:*)",
+      "Bash(bash cloud/setup.sh:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/cloud/session-start.sh\"",
+            "timeout": 900
+          }
+        ]
+      }
+    ]
+  }
+}
